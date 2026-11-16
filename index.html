@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>[SYS.PROTOCOL] // TRANSFERÊNCIA PIX - DEV CHAVATTE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Open+Sans:wght@400;600;700&family=Orbitron:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  </head>
+
+  <body>
+    <div id="toast" class="toast-notification">
+      <i class="fa-solid fa-circle-check"></i>
+      <span id="toast-text">Payload PIX Copiado!</span>
+    </div>
+    <main class="pix-page-wrapper" id="main-wrapper">
+      <header class="pix-modal__header">
+        <div class="title">
+          <span class="pulse-dot" id="header-dot"></span>
+          <span id="header-title">[SYS.PROTOCOL] // TRANSFERÊNCIA PIX</span>
+        </div>
+        <span class="status-tag" id="header-tag"
+          >EMV® QRCPS-MPM // HARDENED</span
+        >
+      </header>
+      <div class="pix-modal__body">
+        <section class="security-lockout" id="security-lockout">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <h2>[SEC_ALERT] // EXECUÇÃO BLOQUEADA</h2>
+          <p id="lockout-reason">
+            Violação de integridade ou domínio não autorizado detectado. Por
+            segurança, a geração do QR Code PIX foi desativada.
+          </p>
+        </section>
+        <div
+          id="checkout-content"
+          style="display: flex; flex-direction: column; gap: 25px"
+        >
+          <section class="receiver-card">
+            <img
+              id="receiver-avatar"
+              src="https://github.com/chavatte.png"
+              alt="Avatar Dev Chavatte"
+              onerror="
+                this.src =
+                  'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23050505%22/><text x=%2250%22 y=%2258%22 font-family=%22monospace%22 font-size=%2236%22 fill=%22%2300ff41%22 text-anchor=%22middle%22>&gt;_</text></svg>'
+              "
+            />
+            <div class="receiver-info">
+              <h2>DEV CHAVATTE</h2>
+              <p id="receiver-msg"></p>
+              <span class="pix-key" id="receiver-key"></span>
+            </div>
+          </section>
+          <div class="dict-security-banner">
+            <i class="fa-solid fa-shield-halved"></i>
+            <div>
+              <strong>[VERIFICAÇÃO ANTI-FRAUDE BACEN/DICT]:</strong> Antes de
+              confirmar o PIX no seu aplicativo bancário, confira sempre se o
+              destinatário exibido na tela do banco é
+              <strong>JOAO CARLOS CHAVATTE</strong>.
+            </div>
+          </div>
+          <section class="checkout-grid">
+            <div class="checkout-inputs">
+              <div class="input-group">
+                <label>1. Valor da Contribuição</label>
+                <div class="preset-buttons" id="preset-buttons">
+                  <button type="button" data-val="0" class="active">
+                    Livre
+                  </button>
+                  <button type="button" data-val="10">R$ 10</button>
+                  <button type="button" data-val="25">R$ 25</button>
+                  <button type="button" data-val="50">R$ 50</button>
+                </div>
+                <div class="input-wrapper">
+                  <span class="currency">R$</span>
+                  <input
+                    type="number"
+                    id="custom-amount"
+                    step="0.01"
+                    min="0"
+                    placeholder="Outro valor (ex: 15.00)"
+                  />
+                </div>
+              </div>
+              <div class="input-group">
+                <div class="label-row">
+                  <label for="donor-id">2. Seu @username (Opcional)</label>
+                  <span class="txid-preview">
+                    TxID:
+                    <strong id="txid-preview-val">PORTFOLIOSPONSOR</strong>
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  id="donor-id"
+                  maxlength="25"
+                  placeholder="Aparece no extrato bancário"
+                />
+              </div>
+              <div class="input-group">
+                <label for="payload-input"
+                  >3. Payload BR Code (Copia e Cola)</label
+                >
+                <input
+                  type="text"
+                  id="payload-input"
+                  readonly
+                  class="payload-input"
+                />
+                <button type="button" id="copy-btn" class="copy-btn">
+                  <i class="fa-solid fa-copy" id="copy-icon"></i>
+                  <span id="copy-text">&gt;_ COPIAR CÓDIGO PIX</span>
+                </button>
+              </div>
+            </div>
+            <div class="checkout-qr">
+              <div class="qr-container">
+                <div class="qr-badge" id="qr-badge">VALOR LIVRE</div>
+                <div id="qr-canvas-container"></div>
+                <span class="qr-instruction">
+                  <i class="fa-solid fa-qrcode"></i> ESCANEIE NO APP DO BANCO
+                </span>
+              </div>
+              <div class="bacen-status">
+                <span>INTEGRIDADE TLV:</span>
+                <span class="validated" id="integrity-badge"
+                  >VERIFIED [CRC16]</span
+                >
+              </div>
+            </div>
+          </section>
+          <section class="audit-section">
+            <div class="audit-header" id="audit-toggle">
+              <span>[+] DEBUG_MODE: AUDITAR ESTRUTURA TLV (QRCPS-MPM)</span>
+              <i class="fa-solid fa-code-branch" id="audit-icon"></i>
+            </div>
+            <div class="audit-grid" id="audit-grid"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+    <script src="./scripts/pixEngine.js"></script>
+    <script src="./scripts/app.js"></script>
+  </body>
+</html>
